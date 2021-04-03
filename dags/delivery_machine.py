@@ -68,7 +68,7 @@ t3 = PythonOperator(
 
 # push 到 cmdb
 t4 = PythonOperator(
-    task_id='wait_instance_state_finish',
+    task_id='push_metadata_cmdb',
     provide_context=True,
     python_callable=push_metadata_cmdb_handler,
     retries=5,
