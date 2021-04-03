@@ -62,11 +62,17 @@ def wait_instance_state_finish_handler(*args, **kwargs):
     if response['code'] == -1:
         raise AirflowHttpExcept(f"response, err: {response['message']}")
 
-    if response['state'] == "stopped":
-        raise AirflowHttpExcept(f"instance state err, current state is {response['state']}")
+    if response['data']['state'] == "stopped":
+        raise AirflowHttpExcept(f"instance state err, current state is {response['data']['state']}")
 
 
-def check_network_ok(*args, **kwargs):
+def check_network_ok_handler(*args, **kwargs):
     """探测网络是否可达 ping / telnet """
+    print(f"args-> {args}")
+    print(f"kwargs-> {kwargs}")
+
+
+def push_metadata_cmdb_handler(*args, **kwargs):
+    """Push instance metadata to cmdb """
     print(f"args-> {args}")
     print(f"kwargs-> {kwargs}")

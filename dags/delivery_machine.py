@@ -9,8 +9,9 @@ from dags.handlers.command import system_init_handler
 from dags.handlers.command import wait_application_init_finish_handler
 from dags.handlers.command import wait_system_init_state_handler
 from dags.handlers.machine import check_instance_handler
-from dags.handlers.machine import check_network_ok
+from dags.handlers.machine import check_network_ok_handler
 from dags.handlers.machine import create_instance_handler
+from dags.handlers.machine import push_metadata_cmdb_handler
 from dags.handlers.machine import wait_instance_state_finish_handler
 
 default_args = {
@@ -66,16 +67,26 @@ t3 = PythonOperator(
     dag=dag,
 )
 
-# 检查网络正常
+# push 到 cmdb
 t4 = PythonOperator(
+    task_id='wait_instance_state_finish',
+    provide_context=True,
+    python_callable=push_metadata_cmdb_handler,
+    retries=5,
+    retry_delay=timedelta(seconds=30),
+    dag=dag,
+)
+
+# 检查网络正常
+t5 = PythonOperator(
     task_id='check_network_ok',
     provide_context=True,
-    python_callable=check_network_ok,
+    python_callable=check_network_ok_handler,
     dag=dag,
 )
 
 # 系统初始化
-t5 = PythonOperator(
+t6 = PythonOperator(
     task_id='system_init',
     provide_context=True,
     python_callable=system_init_handler,
@@ -83,7 +94,7 @@ t5 = PythonOperator(
 )
 
 # 等待系统初始化状态完成
-t6 = PythonOperator(
+t7 = PythonOperator(
     task_id='wait_system_init_state',
     provide_context=True,
     python_callable=wait_system_init_state_handler,
@@ -93,7 +104,7 @@ t6 = PythonOperator(
 )
 
 # 应用初始化
-t7 = PythonOperator(
+t8 = PythonOperator(
     task_id='application_init',
     provide_context=True,
     python_callable=application_init_handler,
@@ -101,7 +112,7 @@ t7 = PythonOperator(
 )
 
 # 等待应用初始化状态完成
-t8 = PythonOperator(
+t9 = PythonOperator(
     task_id='wait_application_init_finish',
     provide_context=True,
     python_callable=wait_application_init_finish_handler,
@@ -110,4 +121,4 @@ t8 = PythonOperator(
     dag=dag,
 )
 
-t1 >> t2 >> t3 >> t4 >> t5 >> t6 >> t7 >> t8
+t1 >> t2 >> t3 >> t4 >> t5 >> t6 >> t7 >> t8 >> t9
