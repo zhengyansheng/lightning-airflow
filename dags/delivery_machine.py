@@ -31,7 +31,9 @@ POST /api/v1/scheduler/<dag_name>
 content-type: application/json
 Authorization: JWT xxx
 {
-
+    "data": {
+            "": "",
+        }
 }
 """
 
