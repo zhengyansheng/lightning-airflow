@@ -52,6 +52,7 @@ t2 = PythonOperator(
     task_id='create_instance',
     provide_context=True,
     python_callable=create_instance_handler,
+    xcom_push=True,
     dag=dag,
 )
 
@@ -60,6 +61,8 @@ t3 = PythonOperator(
     task_id='wait_instance_state_finish',
     provide_context=True,
     python_callable=wait_instance_state_finish_handler,
+    retries=5,
+    retry_delay=timedelta(seconds=30),
     dag=dag,
 )
 
