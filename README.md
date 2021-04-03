@@ -17,6 +17,10 @@
 # pip install -r requirements.txt --timeout 300
 ```
 
+```bash
+# export PYTHONPATH=$PYTHONPATH:/root/lightning-airflow:/root/airflow
+```
+
 ## 启动
 
 - 启动 Web

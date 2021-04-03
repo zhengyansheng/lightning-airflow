@@ -1,23 +1,17 @@
-import os
-import sys
 from datetime import timedelta
 
 import airflow
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-# append lightning-airflow to sys.path
-sys.path.insert(0, os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
-from dags.handlers.machine import check_instance_handler
 from dags.handlers.command import application_init_handler
 from dags.handlers.command import system_init_handler
 from dags.handlers.command import wait_application_init_finish_handler
 from dags.handlers.command import wait_system_init_state_handler
+from dags.handlers.machine import check_instance_handler
 from dags.handlers.machine import check_network_ok
 from dags.handlers.machine import create_instance_handler
 from dags.handlers.machine import wait_instance_state_finish_handler
-
 
 default_args = {
     'owner': 'zhengyansheng',
