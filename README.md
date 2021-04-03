@@ -42,7 +42,7 @@
 
 ### 主机交付
 
-![delivery_machine_dag](/Users/zhengyansheng/go/src/github.com/zhengyansheng/lightning-airflow/imgs/delivery_machine_dag.png)
+![delivery_machine_dag](./imgs/delivery_machine_dag.png)
 
 
 
