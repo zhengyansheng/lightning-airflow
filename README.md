@@ -38,6 +38,19 @@
 # airflow celery worker
 ```
 
+## 案例
+
+### 主机交付
+
+![delivery_machine_dag](/Users/zhengyansheng/go/src/github.com/zhengyansheng/lightning-airflow/imgs/delivery_machine_dag.png)
+
+
+
+[airflow 后台地址](http://www.aiops724.com:8888/)
+
+帐号: admin
+
+密码: zhengyansheng
 
 ## 学习交流
 
