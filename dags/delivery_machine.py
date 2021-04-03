@@ -19,14 +19,16 @@ default_args = {
     'start_date': airflow.utils.dates.days_ago(1),
 }
 
+# Dag 实例化
 dag = DAG(
     'delivery_machine',
     default_args=default_args,
     description='交付机器',
+    # 外部触发
     schedule_interval=None,
 )
 
-"""
+"""Example
 POST /api/v1/scheduler/<dag_name>
 content-type: application/json
 Authorization: JWT xxx
@@ -37,6 +39,7 @@ Authorization: JWT xxx
 }
 """
 
+# 检查实例
 t1 = PythonOperator(
     task_id='check_instance',
     provide_context=True,
@@ -44,6 +47,7 @@ t1 = PythonOperator(
     dag=dag,
 )
 
+# 创建主机
 t2 = PythonOperator(
     task_id='create_instance',
     provide_context=True,
@@ -51,6 +55,7 @@ t2 = PythonOperator(
     dag=dag,
 )
 
+# 等待主机状态完成
 t3 = PythonOperator(
     task_id='wait_instance_state_finish',
     provide_context=True,
@@ -58,6 +63,7 @@ t3 = PythonOperator(
     dag=dag,
 )
 
+# 检查网络正常
 t4 = PythonOperator(
     task_id='check_network_ok',
     provide_context=True,
@@ -65,6 +71,7 @@ t4 = PythonOperator(
     dag=dag,
 )
 
+# 系统初始化
 t5 = PythonOperator(
     task_id='system_init',
     provide_context=True,
@@ -72,6 +79,7 @@ t5 = PythonOperator(
     dag=dag,
 )
 
+# 等待系统初始化状态完成
 t6 = PythonOperator(
     task_id='wait_system_init_state',
     provide_context=True,
@@ -81,6 +89,7 @@ t6 = PythonOperator(
     dag=dag,
 )
 
+# 应用初始化
 t7 = PythonOperator(
     task_id='application_init',
     provide_context=True,
@@ -88,6 +97,7 @@ t7 = PythonOperator(
     dag=dag,
 )
 
+# 等待应用初始化状态完成
 t8 = PythonOperator(
     task_id='wait_application_init_finish',
     provide_context=True,
