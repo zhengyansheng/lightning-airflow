@@ -6,15 +6,15 @@
 
 ```bash
 # cd /
-# git clone git@github.com:zhengyansheng/airflow.git
-# cd airflow
+# git clone git@github.com:zhengyansheng/lightning-airflow.git
+# cd lightning-airflow
 ```
 
 ```bash
 # python3.6 -m venv .venv
 # source .venv/bin/activate
 # pip install -U pip
-# pip install -r requirements.txt --timeout 150
+# pip install -r requirements.txt --timeout 300
 ```
 
 ## 启动

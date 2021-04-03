@@ -1,9 +1,6 @@
 # from common.http import Http
 
-import sys
-print(sys.path)
-# from config import Config
-import config.config
+from config.config import Config
 
 
 def check_instance_handler(*args, **kwargs):

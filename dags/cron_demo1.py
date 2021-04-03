@@ -11,7 +11,7 @@ default_args = {
 dag = DAG(
     dag_id='cron_demo1',
     default_args=default_args,
-    schedule_interval='*/10 * * * *')
+    schedule_interval='*/50 * * * *')
 
 
 t1 = BashOperator(
