@@ -110,7 +110,7 @@ def push_metadata_cmdb_handler(*args, **kwargs):
     pprint(response)
 
 
-def join_ascription_handler(*args, **kwargs):
+def join_tree_handler(*args, **kwargs):
     """
     加入归属
     """

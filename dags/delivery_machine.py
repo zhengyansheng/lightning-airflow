@@ -13,7 +13,7 @@ from dags.handlers.machine import check_network_ok_handler
 from dags.handlers.machine import create_instance_handler
 from dags.handlers.machine import push_metadata_cmdb_handler
 from dags.handlers.machine import wait_instance_state_finish_handler
-from dags.handlers.machine import join_ascription_handler
+from dags.handlers.machine import join_tree_handler
 
 default_args = {
     'owner': 'zhengyansheng',
@@ -123,9 +123,9 @@ t9 = PythonOperator(
 
 # 加入归属
 t10 = PythonOperator(
-    task_id='join_ascription',
+    task_id='join_tree',
     provide_context=True,
-    python_callable=join_ascription_handler,
+    python_callable=join_tree_handler,
     retries=5,
     retry_delay=timedelta(seconds=60),
     dag=dag,
