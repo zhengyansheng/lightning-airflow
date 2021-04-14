@@ -2,6 +2,7 @@ from pprint import pprint
 
 from common.exceptions import AirflowHttpExcept
 from common.http import Http
+from common.auth import LightningAuth
 from config.config import DagConfig
 
 
@@ -129,15 +130,24 @@ def join_tree_handler(*args, **kwargs):
     if _response['code'] == -1:
         raise AirflowHttpExcept(f"response, err: {_response['message']}")
 
-    cmdbPk = _response['results'][0]['id']
+    cmdbPk = _response['data']['results'][0]['id']
 
     # 提交并加入到tree
     url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/service_tree/server/"
     print(f"current post url: {url}")
 
+    # 获取JWT
+    jwt_token, ok = LightningAuth(DagConfig.LIGHTNING_OPS_LOGIN_USERNAME, DagConfig.LIGHTNING_OPS_LOGIN_PASSWORD)
+    if not ok:
+        raise AirflowHttpExcept(f"get jwt , err: {jwt_token}")
+
     # 发起请求 POST 提交
     tree_param_data = {"node": 31, "cmdbs": [cmdbPk]} # TODO
-    response, ok = Http.Post(url, tree_param_data)
+    headers = {
+        "content-type": "application/json",
+        "Authorization": "JWT {}".format(jwt_token)
+    }
+    response, ok = Http.Post(url, tree_param_data, headers=headers)
     if not ok:
         raise AirflowHttpExcept(f"Http post, err: {response}")
 

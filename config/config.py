@@ -36,6 +36,8 @@ class ProductionConfig(Config):
     # lightning-ops
     LIGHTNING_OPS_HOST = "ops.aiops724.com"
     LIGHTNING_OPS_PORT = 80
+    LIGHTNING_OPS_LOGIN_USERNAME = "admin"
+    LIGHTNING_OPS_LOGIN_PASSWORD = "zhengyansheng"
 
 
 if os.environ.get("AIRFLOW_ENV") == "release":
