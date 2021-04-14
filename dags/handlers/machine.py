@@ -63,6 +63,10 @@ def wait_instance_state_finish_handler(*args, **kwargs):
         raise AirflowHttpExcept(f"instance state err, current state is {response['data']['state']}")
 
 
+    # push share k/v
+    kwargs["ti"].xcom_push(key='push_job_id', value=response['data']['private_ip'])
+
+
 def check_network_ok_handler(*args, **kwargs):
     """探测网络是否可达 ping / telnet """
     print(f"args-> {args}")
@@ -97,6 +101,43 @@ def push_metadata_cmdb_handler(*args, **kwargs):
 
     # 发起请求 POST 提交
     response, ok = Http.Post(url, response['data'])
+    if not ok:
+        raise AirflowHttpExcept(f"Http post, err: {response}")
+
+    if response['code'] == -1:
+        raise AirflowHttpExcept(f"response, err: {response['message']}")
+
+    pprint(response)
+
+
+def join_ascription_handler(*args, **kwargs):
+    """
+    加入归属
+    """
+    # 查询cmdb id
+    # pull share k/v
+    private_ip = kwargs["ti"].xcom_pull(task_ids='wait_instance_state_finish', key='push_job_id')
+    print(f"->private_ip: {private_ip}")
+    # http://ops.aiops724.com/api/v1/cmdb/instances/?page=1&page_size=8&search=172.17.118.29
+
+    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/?search={private_ip}"
+    print(f"current post url: {url}")
+    _response, ok = Http.Get(url)
+    if not ok:
+        raise AirflowHttpExcept(f"Http get, err: {_response}")
+
+    if _response['code'] == -1:
+        raise AirflowHttpExcept(f"response, err: {_response['message']}")
+
+    cmdbPk = _response['results'][0]['id']
+
+    # 提交并加入到tree
+    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/service_tree/server/"
+    print(f"current post url: {url}")
+
+    # 发起请求 POST 提交
+    tree_param_data = {"node": 31, "cmdbs": [cmdbPk]} # TODO
+    response, ok = Http.Post(url, tree_param_data)
     if not ok:
         raise AirflowHttpExcept(f"Http post, err: {response}")
 
