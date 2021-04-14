@@ -2,7 +2,7 @@ from pprint import pprint
 
 from common.exceptions import AirflowHttpExcept
 from common.http import Http
-from config.config import Config
+from config.config import DagConfig
 
 
 def check_instance_handler(*args, **kwargs):
@@ -18,7 +18,7 @@ def create_instance_handler(*args, **kwargs):
 
     # 组合URL
     uri = "/api/v1/multi-cloud/instance/create"
-    url = f"http://{Config.LIGHTNING_GO_HOST}:{Config.LIGHTNING_GO_PORT}{uri}"
+    url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
     print(f"current url: {url}")
 
     # 发起请求
@@ -38,9 +38,6 @@ def create_instance_handler(*args, **kwargs):
 
 
 def wait_instance_state_finish_handler(*args, **kwargs):
-    # print(f"args-> {args}")
-    # print(f"kwargs-> {kwargs}")
-
     # 解析参数
     data = kwargs['dag_run'].conf
 
@@ -50,13 +47,13 @@ def wait_instance_state_finish_handler(*args, **kwargs):
 
     # 组合URL
     uri = f"/api/v1/multi-cloud/instance/{instance_id}?account={data['account']}&region_id={data['region_id']}"
-    url = f"http://{Config.LIGHTNING_GO_HOST}:{Config.LIGHTNING_GO_PORT}{uri}"
+    url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
     print(f"current url: {url}")
 
     # 发起请求
     response, ok = Http.Get(url)
     if not ok:
-        raise AirflowHttpExcept(f"Http post, err: {response}")
+        raise AirflowHttpExcept(f"Http get, err: {response}")
     pprint(response)
 
     if response['code'] == -1:
@@ -73,6 +70,37 @@ def check_network_ok_handler(*args, **kwargs):
 
 
 def push_metadata_cmdb_handler(*args, **kwargs):
-    """Push instance metadata to cmdb """
-    print(f"args-> {args}")
-    print(f"kwargs-> {kwargs}")
+    """
+    Push instance metadata to cmdb
+    """
+    # 解析参数
+    data = kwargs['dag_run'].conf
+
+    # pull share k/v
+    instance_id = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
+    print(f"->instance_id: {instance_id}")
+
+    # 组合URL
+    uri = f"/api/v1/multi-cloud/instance/{instance_id}?account={data['account']}&region_id={data['region_id']}"
+    url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
+    print(f"current get url: {url}")
+
+    # 发起请求 GET 查询
+    response, ok = Http.Get(url)
+    if not ok:
+        raise AirflowHttpExcept(f"Http post, err: {response}")
+    pprint(response)
+
+    # 组合URL
+    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/"
+    print(f"current post url: {url}")
+
+    # 发起请求 POST 提交
+    response, ok = Http.Post(url, response['data'])
+    if not ok:
+        raise AirflowHttpExcept(f"Http post, err: {response}")
+
+    if response['code'] == -1:
+        raise AirflowHttpExcept(f"response, err: {response['message']}")
+
+    pprint(response)

@@ -17,8 +17,9 @@ class Config(object):
     LIGHTNING_GO_HOST = "127.0.0.1"
     LIGHTNING_GO_PORT = 9900
 
-
-
+    # lightning-ops
+    LIGHTNING_OPS_HOST = "127.0.0.1"
+    LIGHTNING_OPS_PORT = 9000
 
 
 class DevelopmentConfig(Config):
@@ -28,11 +29,16 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     """Production config class."""
-    pass
+    # lightning-go
+    LIGHTNING_GO_HOST = "127.0.0.1"
+    LIGHTNING_GO_PORT = 9900
 
+    # lightning-ops
+    LIGHTNING_OPS_HOST = "ops.aiops724.com"
+    LIGHTNING_OPS_PORT = 80
 
 
 if os.environ.get("AIRFLOW_ENV") == "release":
-    Config = ProductionConfig()
+    DagConfig = ProductionConfig()
 else:
-    Config = DevelopmentConfig()
+    DagConfig = DevelopmentConfig()
