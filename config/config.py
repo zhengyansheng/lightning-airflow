@@ -30,8 +30,8 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production config class."""
     # lightning-go
-    LIGHTNING_GO_HOST = "127.0.0.1"
-    LIGHTNING_GO_PORT = 9900
+    LIGHTNING_GO_HOST = "go-ops.aiops724.com"
+    LIGHTNING_GO_PORT = 80
 
     # lightning-ops
     LIGHTNING_OPS_HOST = "ops.aiops724.com"
