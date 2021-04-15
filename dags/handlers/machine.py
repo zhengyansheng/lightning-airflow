@@ -147,7 +147,10 @@ def join_tree_handler(*args, **kwargs):
         "content-type": "application/json",
         "Authorization": "JWT {}".format(jwt_token)
     }
+    pprint(headers)
     response, ok = Http.Post(url, tree_param_data, headers=headers)
+    pprint(ok)
+    pprint(response)
     if not ok:
         raise AirflowHttpExcept(f"Http post, err: {response}")
 
@@ -155,3 +158,42 @@ def join_tree_handler(*args, **kwargs):
         raise AirflowHttpExcept(f"response, err: {response['message']}")
 
     pprint(response)
+
+
+def start_instance_handler(*args, **kwargs):
+    # 解析参数
+    data = kwargs['dag_run'].conf
+
+    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/?private_ip={data['private_ip']}"
+    print(f"current get url: {url}")
+    _response, ok = Http.Get(url)
+    if not ok:
+        raise AirflowHttpExcept(f"Http get, err: {_response}")
+
+    if _response['code'] == -1:
+        raise AirflowHttpExcept(f"response, err: {_response['message']}")
+
+    data = _response['data']['results'][0]
+
+    # 组合URL
+    uri = f"/api/v1/multi-cloud/instance/start"
+    url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
+    print(f"current url: {url}")
+
+    # 发起请求
+    json_data = {
+        "account": data['account'],
+        "region_id": data['region_id'],
+        "instance_id": data['instance_id'],
+    }
+    response, ok = Http.Post(url, json_data)
+    if not ok:
+        raise AirflowHttpExcept(f"Http post err: {response}")
+    pprint(response)
+
+    if response['code'] == -1:
+        raise AirflowHttpExcept(f"response, err: {response['message']}")
+
+
+def sync_instance_info_handler(*args, **kwargs):
+    pass
