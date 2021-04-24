@@ -34,7 +34,11 @@ def create_instance_handler(*args, **kwargs):
     # {'code': 0, 'data': {'instance_id': 'i-2ze3vpnhvpod3xlzpkpr'}, 'message': 'Ok', 'request_id': ''}
     instance_info = response['data']
     # push share k/v
-    ti.xcom_push(key='push_job_id', value=instance_info['instance_id'])
+    _data = {
+        "instance_id": instance_info['instance_id'],
+        "account": data['account'],
+    }
+    ti.xcom_push(key='push_job_id', value=_data)
     return response
 
 
@@ -43,11 +47,11 @@ def wait_instance_state_finish_handler(*args, **kwargs):
     data = kwargs['dag_run'].conf
 
     # pull share k/v
-    instance_id = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
-    print(f"->instance_id: {instance_id}")
+    job = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
+    print(f"->instance_id: {job['instance_id']}")
 
     # 组合URL
-    uri = f"/api/v1/multi-cloud/instance/{instance_id}?account={data['account']}&region_id={data['region_id']}"
+    uri = f"/api/v1/multi-cloud/instance/{job['instance_id']}?account={data['account']}&region_id={data['region_id']}"
     url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
     print(f"current url: {url}")
 
@@ -82,11 +86,12 @@ def push_metadata_cmdb_handler(*args, **kwargs):
     data = kwargs['dag_run'].conf
 
     # pull share k/v
-    instance_id = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
-    print(f"->instance_id: {instance_id}")
+    job = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
+    print(f"->instance_id: {job['instance_id']}")
+    print(f"->account: {job['account']}")
 
     # 组合URL
-    uri = f"/api/v1/multi-cloud/instance/{instance_id}?account={data['account']}&region_id={data['region_id']}"
+    uri = f"/api/v1/multi-cloud/instance/{job['instance_id']}?account={data['account']}&region_id={data['region_id']}"
     url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
     print(f"current get url: {url}")
 
@@ -101,7 +106,9 @@ def push_metadata_cmdb_handler(*args, **kwargs):
     print(f"current post url: {url}")
 
     # 发起请求 POST 提交
-    response, ok = Http.Post(url, response['data'])
+    _data = response['data']
+    _data['account'] = job['account']
+    response, ok = Http.Post(url, _data)
     if not ok:
         raise AirflowHttpExcept(f"Http post, err: {response}")
 
