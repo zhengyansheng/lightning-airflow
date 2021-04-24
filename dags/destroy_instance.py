@@ -41,7 +41,7 @@ t1 = PythonOperator(
 
 # 启动主机
 t2 = PythonOperator(
-    task_id='reboot_instance',
+    task_id='destroy_instance',
     provide_context=True,
     python_callable=common_instance_handler,
     op_kwargs={"action": "destroy"},
