@@ -216,7 +216,6 @@ def sync_instance_info_handler(*args, **kwargs):
 
     # 3. update instance state
     state_m = {
-        "state": kwargs['action'],
         "is_deleted": kwargs.get('is_deleted', False),
     }
     update_instance_state(instance_info['account'], instance_info['region_id'], instance_info['instance_id'], state_m)
