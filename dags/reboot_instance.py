@@ -41,9 +41,10 @@ t1 = PythonOperator(
 
 # 启动主机
 t2 = PythonOperator(
-    task_id='start_instance',
+    task_id='reboot_instance',
     provide_context=True,
     python_callable=reboot_instance_handler,
+    op_kwargs={"action": "reboot"},
     dag=dag,
 )
 

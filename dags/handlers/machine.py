@@ -232,7 +232,7 @@ def stop_instance_handler(*args, **kwargs):
         raise AirflowHttpExcept(f"response, err: {response['message']}")
 
 
-def reboot_instance_handler(*args, **kwargs):
+def reboot_instance_handler(action, *args, **kwargs):
     # 解析参数
     data = kwargs['dag_run'].conf
 
@@ -248,7 +248,7 @@ def reboot_instance_handler(*args, **kwargs):
     data = _response['data']['results'][0]
 
     # 组合URL
-    uri = f"/api/v1/multi-cloud/instance/reboot"
+    uri = f"/api/v1/multi-cloud/instance/{action}"
     url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
     print(f"current url: {url}")
 
