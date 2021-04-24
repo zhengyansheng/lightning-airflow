@@ -161,6 +161,7 @@ def join_tree_handler(*args, **kwargs):
         "Authorization": "JWT {}".format(jwt_token)
     }
     pprint(headers)
+    pprint(tree_param_data)
     response, ok = Http.Post(url, tree_param_data, headers=headers)
     pprint(ok)
     pprint(response)

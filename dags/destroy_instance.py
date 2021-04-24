@@ -39,7 +39,7 @@ t1 = PythonOperator(
     dag=dag,
 )
 
-# 启动主机
+# 下线主机
 t2 = PythonOperator(
     task_id='destroy_instance',
     provide_context=True,
