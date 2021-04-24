@@ -33,7 +33,7 @@ class Http(object):
     def Put(url, data, headers=None):
         if not headers:
             headers = {"content-type": "application/json"}
-        req = requests.post(url, json=data, headers=headers)
+        req = requests.put(url, json=data, headers=headers)
         if req.status_code == 200:
             try:
                 return req.json(), True

@@ -4,6 +4,7 @@ from common.auth import LightningAuth
 from common.exceptions import AirflowHttpExcept
 from common.exec_http import operation_instance
 from common.exec_http import query_instance_info_by_private_ip
+from common.exec_http import multi_update_instance_to_cmdb
 from common.http import Http
 from config.config import DagConfig
 
@@ -228,33 +229,23 @@ def update_instance_state(account, region_id, instance_id, state_m={}):
     """
     通用修改实例状态
     """
-
     # 1. 查询实例详情
     uri = f"/api/v1/multi-cloud/instance/{instance_id}?account={account}&region_id={region_id}"
     url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
     print(f"current get url: {url}")
-
-    # 发起请求 GET 查询
     response, ok = Http.Get(url)
+    pprint(response)
     if not ok:
         raise AirflowHttpExcept(f"Http get, err: {response}")
-    pprint(response)
 
-    # 2. 修改查询信息
-    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/multi_update"
-
-    # 发起请求 POST 提交
-    _data = response['data']
-    _data['private_ip'] = _data['private_ip']
-    _data.update(state_m)
-    print(f"current put url: {url}")
-    print(_data)
-    response, ok = Http.Put(url, [_data])
+    # 2. 批量修改实例信息
+    tmp_data = {
+        "private_ip": response['data']['private_ip'],
+    }
+    tmp_data.update(state_m)
+    pprint(tmp_data)
+    result, ok = multi_update_instance_to_cmdb([tmp_data])
     if not ok:
-        raise AirflowHttpExcept(f"Http post, err: {response}")
+        raise AirflowHttpExcept(result)
 
-    if response['code'] == -1:
-        raise AirflowHttpExcept(f"response, err: {response['message']}")
-
-    pprint(response)
     return

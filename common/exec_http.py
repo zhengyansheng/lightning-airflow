@@ -42,5 +42,15 @@ def operation_instance(action, json_data):
     return "", True
 
 
-def post_instance_to_cmdb(private_ip, source_cmdb=True):
-    pass
+def multi_update_instance_to_cmdb(data_list):
+    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/multi_update"
+    print(f"current put url: {url}")
+    response, ok = Http.Put(url, data_list)
+    pprint(response)
+    if not ok:
+        return f"Http post, err: {response}", False
+
+    if response['code'] == -1:
+        return f"response, err: {response['message']}", False
+
+    return "", True
