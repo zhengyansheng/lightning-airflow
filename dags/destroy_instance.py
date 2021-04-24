@@ -16,9 +16,9 @@ default_args = {
 
 # Dag 实例化
 dag = DAG(
-    'reboot_instance',
+    'destroy_instance',
     default_args=default_args,
-    description='重启实例',
+    description='下线实例',
     # 外部触发
     schedule_interval=None,
 )
@@ -44,7 +44,7 @@ t2 = PythonOperator(
     task_id='reboot_instance',
     provide_context=True,
     python_callable=common_instance_handler,
-    op_kwargs={"action": "reboot"},
+    op_kwargs={"action": "destroy"},
     dag=dag,
 )
 

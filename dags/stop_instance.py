@@ -5,7 +5,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 from dags.handlers.machine import check_instance_handler
-from dags.handlers.machine import stop_instance_handler
+from dags.handlers.machine import common_instance_handler
 from dags.handlers.machine import sync_instance_info_handler
 
 default_args = {
@@ -43,7 +43,8 @@ t1 = PythonOperator(
 t2 = PythonOperator(
     task_id='stop_instance',
     provide_context=True,
-    python_callable=stop_instance_handler,
+    python_callable=common_instance_handler,
+    op_kwargs={"action": "stop"},
     dag=dag,
 )
 
