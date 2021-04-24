@@ -53,6 +53,7 @@ t3 = PythonOperator(
     task_id='sync_instance_info',
     provide_context=True,
     python_callable=sync_instance_info_handler,
+    op_kwargs={"is_deleted": True},
     dag=dag,
 )
 

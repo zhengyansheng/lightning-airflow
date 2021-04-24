@@ -213,4 +213,92 @@ def common_instance_handler(action, *args, **kwargs):
 
 
 def sync_instance_info_handler(*args, **kwargs):
-    pass
+    # 解析参数
+    print(f"args: {args}")
+    print(f"kwargs: {kwargs}")
+    data = kwargs['dag_run'].conf
+
+    # pull share k/v
+    job = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
+    print(f"->instance_id: {job['instance_id']}")
+    print(f"->account: {job['account']}")
+
+    # update instance state
+    state_m = {
+        "state": kwargs['action'],
+        "is_deleted": kwargs.get('is_deleted', False),
+    }
+    update_instance_state(data['account'], data['region_id'], job['instance_id'], state_m)
+
+
+
+    # # 组合URL
+    # uri = f"/api/v1/multi-cloud/instance/{job['instance_id']}?account={data['account']}&region_id={data['region_id']}"
+    # url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
+    # print(f"current get url: {url}")
+    #
+    # # 发起请求 GET 查询
+    # response, ok = Http.Get(url)
+    # if not ok:
+    #     raise AirflowHttpExcept(f"Http post, err: {response}")
+    # pprint(response)
+    #
+    # # 组合URL
+    # url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/multi_update"
+    # print(f"current post url: {url}")
+    #
+    # # 发起请求 POST 提交
+    # _data = response['data']
+    # _data['private_ip'] = _data['private_ip']
+    # _data['is_deleted'] = True
+    # response, ok = Http.Put(url, [_data])
+    # if not ok:
+    #     raise AirflowHttpExcept(f"Http post, err: {response}")
+    #
+    # if response['code'] == -1:
+    #     raise AirflowHttpExcept(f"response, err: {response['message']}")
+    #
+    # pprint(response)
+    # return
+
+
+
+
+###
+
+
+
+def update_instance_state(account, region_id, instance_id, state_m={}):
+    """
+    通用修改实例状态
+    """
+
+    # 1. 查询实例详情
+    uri = f"/api/v1/multi-cloud/instance/{instance_id}?account={account}&region_id={region_id}"
+    url = f"http://{DagConfig.LIGHTNING_GO_HOST}:{DagConfig.LIGHTNING_GO_PORT}{uri}"
+    print(f"current get url: {url}")
+
+    # 发起请求 GET 查询
+    response, ok = Http.Get(url)
+    if not ok:
+        raise AirflowHttpExcept(f"Http get, err: {response}")
+    pprint(response)
+
+    # 2. 修改查询信息
+    url = f"http://{DagConfig.LIGHTNING_OPS_HOST}:{DagConfig.LIGHTNING_OPS_PORT}/api/v1/cmdb/instances/multi_update"
+
+    # 发起请求 POST 提交
+    _data = response['data']
+    _data['private_ip'] = _data['private_ip']
+    _data.update(state_m)
+    print(f"current put url: {url}")
+    print(_data)
+    response, ok = Http.Put(url, [_data])
+    if not ok:
+        raise AirflowHttpExcept(f"Http post, err: {response}")
+
+    if response['code'] == -1:
+        raise AirflowHttpExcept(f"response, err: {response['message']}")
+
+    pprint(response)
+    return

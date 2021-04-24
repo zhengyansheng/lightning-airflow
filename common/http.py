@@ -30,8 +30,17 @@ class Http(object):
             return req.json(), True
 
     @staticmethod
-    def Put():
-        pass
+    def Put(url, data, headers=None):
+        if not headers:
+            headers = {"content-type": "application/json"}
+        req = requests.post(url, json=data, headers=headers)
+        if req.status_code == 200:
+            try:
+                return req.json(), True
+            except:
+                return req.text, False
+        else:
+            return req.json(), True
 
     def Delete(self):
         pass
