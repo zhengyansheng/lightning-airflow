@@ -7,8 +7,12 @@ from config.config import DagConfig
 
 
 def check_instance_handler(*args, **kwargs):
-    print(f"args-> {args}")
-    print(f"kwargs-> {kwargs}")
+    # 解析参数
+    data = kwargs['dag_run'].conf
+    if 'app_key' not in data:
+        raise AirflowHttpExcept("app_key is required.")
+
+    return
 
 
 def create_instance_handler(*args, **kwargs):
@@ -122,6 +126,8 @@ def join_tree_handler(*args, **kwargs):
     """
     加入归属
     """
+    # 解析参数
+    data = kwargs['dag_run'].conf
     # 查询cmdb id
     # pull share k/v
     private_ip = kwargs["ti"].xcom_pull(task_ids='wait_instance_state_finish', key='push_job_id')
@@ -149,7 +155,7 @@ def join_tree_handler(*args, **kwargs):
         raise AirflowHttpExcept(f"get jwt , err: {jwt_token}")
 
     # 发起请求 POST 提交
-    tree_param_data = {"node": 31, "cmdbs": [cmdbPk]} # TODO
+    tree_param_data = {"app_key": data['app_key'], "cmdbs": [cmdbPk]} # TODO
     headers = {
         "content-type": "application/json",
         "Authorization": "JWT {}".format(jwt_token)
