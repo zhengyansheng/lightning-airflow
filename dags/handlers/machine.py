@@ -8,9 +8,6 @@ from config.config import DagConfig
 
 def check_instance_handler(*args, **kwargs):
     # 解析参数
-    data = kwargs['dag_run'].conf
-    if 'app_key' not in data:
-        raise AirflowHttpExcept("app_key is required.")
 
     return
 
@@ -129,6 +126,12 @@ def join_tree_handler(*args, **kwargs):
     # 解析参数
     data = kwargs['dag_run'].conf
     # 查询cmdb id
+
+    # 检查
+    data = kwargs['dag_run'].conf
+    if 'app_key' not in data:
+        raise AirflowHttpExcept("app_key is required.")
+
     # pull share k/v
     private_ip = kwargs["ti"].xcom_pull(task_ids='wait_instance_state_finish', key='push_job_id')
     print(f"->private_ip: {private_ip}")
