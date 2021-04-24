@@ -31,10 +31,10 @@ def create_instance_handler(*args, **kwargs):
     if response['code'] == -1:
         raise AirflowHttpExcept(f"response, err: {response['message']}")
 
-    # {'code': 0, 'data': 'i-2ze3vpnhvpod3xlzpkpr', 'message': 'Ok', 'request_id': ''}
-    instance_id = response['data']
+    # {'code': 0, 'data': {'instance_id': 'i-2ze3vpnhvpod3xlzpkpr'}, 'message': 'Ok', 'request_id': ''}
+    instance_info = response['data']
     # push share k/v
-    ti.xcom_push(key='push_job_id', value=instance_id)
+    ti.xcom_push(key='push_job_id', value=instance_info['instance_id'])
     return response
 
 
