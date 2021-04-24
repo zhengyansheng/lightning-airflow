@@ -243,8 +243,8 @@ def update_instance_state(account, region_id, instance_id, state_m={}):
         "private_ip": response['data']['private_ip'],
     }
     tmp_data.update(state_m)
-    pprint(tmp_data)
-    result, ok = multi_update_instance_to_cmdb([tmp_data])
+    data_list = [tmp_data]
+    result, ok = multi_update_instance_to_cmdb(data_list)
     if not ok:
         raise AirflowHttpExcept(result)
 
