@@ -182,9 +182,10 @@ def join_tree_handler(*args, **kwargs):
 def common_instance_handler(action, *args, **kwargs):
     # 1. 解析参数
     data = kwargs['dag_run'].conf
+    print(f"data: {data}")
 
     # 2. 查询详情
-    instance_info, ok = query_instance_info_by_private_ip(data['private_ip'], source_cmdb=True)
+    instance_info, ok = query_instance_info_by_private_ip(private_ip=data['private_ip'], source_cmdb=True)
     if not ok:
         raise AirflowHttpExcept(instance_info)
 
@@ -202,22 +203,23 @@ def common_instance_handler(action, *args, **kwargs):
 
 
 def sync_instance_info_handler(*args, **kwargs):
-    # 解析参数
+    # 1, 解析参数
     print(f"args: {args}")
     print(f"kwargs: {kwargs}")
     data = kwargs['dag_run'].conf
+    print(f"data: {data}")
 
-    # pull share k/v
-    job = kwargs["ti"].xcom_pull(task_ids='create_instance', key='push_job_id')
-    print(f"->instance_id: {job['instance_id']}")
-    print(f"->account: {job['account']}")
+    # 2. 查询详情
+    instance_info, ok = query_instance_info_by_private_ip(private_ip=data['private_ip'], source_cmdb=True)
+    if not ok:
+        raise AirflowHttpExcept(instance_info)
 
-    # update instance state
+    # 3. update instance state
     state_m = {
         "state": kwargs['action'],
         "is_deleted": kwargs.get('is_deleted', False),
     }
-    update_instance_state(data['account'], data['region_id'], job['instance_id'], state_m)
+    update_instance_state(instance_info['account'], instance_info['region_id'], instance_info['instance_id'], state_m)
 
 
 ### 通用函数 ###
